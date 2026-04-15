@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinBot Browser Compatibility Check</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+    .warning {
+      color: orange;
+      font-weight: bold;
+    }
+    button {
+      padding: 10px 15px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .panel {
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .status-summary {
+      font-size: 1.2em;
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    .status-compatible {
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+    }
+    .status-partial {
+      background-color: #fff3cd;
+      border: 1px solid #ffeeba;
+    }
+    .status-incompatible {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+  <h1>FinBot Browser Compatibility Check</h1>
+  
+  <div id="status-summary" class="status-summary">
+    Checking browser compatibility...
+  </div>
+  
+  <div class="panel">
+    <h2>Browser Information:</h2>
+    <div id="browser-info"></div>
+  </div>
+  
+  <div class="panel">
+    <h2>Critical Features:</h2>
+    <div id="critical-tests"></div>
+  </div>
+  
+  <div class="panel">
+    <h2>Optional Features:</h2>
+    <div id="optional-tests"></div>
+  </div>
+  
+  <button id="test-btn">Run Advanced Tests</button>
+  
+  <div class="panel">
+    <h2>Advanced Tests:</h2>
+    <div id="advanced-tests">
+      <p>Click the button above to run advanced tests.</p>
+    </div>
+  </div>
+  
+  <div class="panel">
+    <h2>Troubleshooting:</h2>
+    <div id="troubleshooting">
+      <p>If you're experiencing issues:</p>
+      <ol>
+        <li>Try using the latest version of Chrome, Firefox, Edge or Safari</li>
+        <li>Make sure JavaScript is enabled in your browser</li>
+        <li>Try clearing your browser cache and cookies</li>
+        <li>Disable browser extensions that might interfere with the application</li>
+        <li>Check your internet connection</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    // Basic JavaScript test
+    const statusSummary = document.getElementById('status-summary');
+    const browserInfo = document.getElementById('browser-info');
+    const criticalTests = document.getElementById('critical-tests');
+    const optionalTests = document.getElementById('optional-tests');
+    const advancedTests = document.getElementById('advanced-tests');
+    
+    // Browser information
+    browserInfo.innerHTML = `
+      <p><strong>User Agent:</strong> ${navigator.userAgent}</p>
+      <p><strong>Browser:</strong> ${navigator.appName}</p>
+      <p><strong>Version:</strong> ${navigator.appVersion}</p>
+      <p><strong>Platform:</strong> ${navigator.platform}</p>
+    `;
+    
+    // Critical tests
+    const criticalFeatures = [
+      { name: 'JavaScript', test: () => true },
+      { name: 'localStorage', test: () => {
+        try {
+          localStorage.setItem('test', 'test');
+          localStorage.removeItem('test');
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }},
+      { name: 'Fetch API', test: () => typeof window.fetch !== 'undefined' },
+      { name: 'Promise API', test: () => typeof window.Promise !== 'undefined' },
+      { name: 'async/await', test: () => {
+        try {
+          eval('async function test() {}');
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }}
+    ];
+    
+    // Optional tests
+    const optionalFeatures = [
+      { name: 'WebSocket', test: () => typeof window.WebSocket !== 'undefined' },
+      { name: 'IndexedDB', test: () => window.indexedDB !== undefined },
+      { name: 'Web Workers', test: () => typeof window.Worker !== 'undefined' },
+      { name: 'Service Workers', test: () => 'serviceWorker' in navigator },
+      { name: 'Crypto API', test: () => window.crypto && window.crypto.getRandomValues }
+    ];
+    
+    // Run critical tests
+    let criticalResults = criticalFeatures.map(feature => {
+      const result = feature.test();
+      return { name: feature.name, result };
+    });
+    
+    criticalTests.innerHTML = criticalResults.map(feature => 
+      `<p class="${feature.result ? 'success' : 'error'}">
+        ${feature.result ? '✓' : '✗'} ${feature.name} is ${feature.result ? '' : 'not '}available
+      </p>`
+    ).join('');
+    
+    // Run optional tests
+    let optionalResults = optionalFeatures.map(feature => {
+      const result = feature.test();
+      return { name: feature.name, result };
+    });
+    
+    optionalTests.innerHTML = optionalResults.map(feature => 
+      `<p class="${feature.result ? 'success' : 'warning'}">
+        ${feature.result ? '✓' : '⚠️'} ${feature.name} is ${feature.result ? '' : 'not '}available
+      </p>`
+    ).join('');
+    
+    // Overall compatibility status
+    const criticalFailed = criticalResults.filter(f => !f.result).length;
+    const optionalFailed = optionalResults.filter(f => !f.result).length;
+    
+    if (criticalFailed === 0) {
+      if (optionalFailed === 0) {
+        statusSummary.innerHTML = '<span class="success">✓ Your browser is fully compatible with FinBot!</span>';
+        statusSummary.className = 'status-summary status-compatible';
+      } else {
+        statusSummary.innerHTML = '<span class="warning">⚠️ Your browser is compatible with FinBot, but some optional features may not work.</span>';
+        statusSummary.className = 'status-summary status-partial';
+      }
+    } else {
+      statusSummary.innerHTML = `<span class="error">✗ Your browser is missing ${criticalFailed} critical feature(s) required by FinBot.</span>`;
+      statusSummary.className = 'status-summary status-incompatible';
+    }
+    
+    // Advanced tests
+    document.getElementById('test-btn').addEventListener('click', function() {
+      advancedTests.innerHTML = '<p>Running advanced tests...</p>';
+      
+      // Test WebSocket connection
+      try {
+        const ws = new WebSocket('wss://echo.websocket.org');
+        
+        let wsResult = '<p class="warning">⚠️ Testing WebSocket connection...</p>';
+        
+        ws.onopen = function() {
+          advancedTests.innerHTML = advancedTests.innerHTML.replace(
+            wsResult, 
+            '<p class="success">✓ WebSocket connection established successfully</p>'
+          );
+          ws.close();
+        };
+        
+        ws.onerror = function(error) {
+          advancedTests.innerHTML = advancedTests.innerHTML.replace(
+            wsResult, 
+            '<p class="error">✗ WebSocket connection failed</p>'
+          );
+        };
+        
+        advancedTests.innerHTML = wsResult;
+      } catch (e) {
+        advancedTests.innerHTML = `<p class="error">✗ WebSocket error: ${e.message}</p>`;
+      }
+      
+      // Test Performance API
+      if (window.performance) {
+        const perfEntries = performance.getEntriesByType("navigation");
+        advancedTests.innerHTML += `
+          <p class="success">✓ Performance API is available</p>
+          <p>Page load time: ${Math.round(performance.now())}ms</p>
+        `;
+      } else {
+        advancedTests.innerHTML += '<p class="warning">⚠️ Performance API is not available</p>';
+      }
+      
+      // Test Console API
+      try {
+        console.log("Console test");
+        advancedTests.innerHTML += '<p class="success">✓ Console API is working</p>';
+      } catch (e) {
+        advancedTests.innerHTML += `<p class="error">✗ Console API error: ${e.message}</p>`;
+      }
+    });
+
+    window.Console = null;
+    var originalConsole = window.console || {};
+    window.console = { /* simplified methods */ };
+  </script>
+</body>
+</html> 

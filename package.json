@@ -1,0 +1,8 @@
+{
+  "name": "finbot-app",
+  "version": "1.0.0",
+  "description": "FinBot - Financial Analysis Chatbot",
+  "scripts": {
+    "start": "npx serve build -s"
+  }
+}

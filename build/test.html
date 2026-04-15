@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+    button {
+      padding: 10px 15px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>JavaScript Test Page</h1>
+  
+  <div id="js-status">Checking JavaScript status...</div>
+  
+  <h2>Browser Information:</h2>
+  <div id="browser-info"></div>
+  
+  <h2>Environment Tests:</h2>
+  <div id="tests"></div>
+  
+  <button id="test-btn">Run Additional Tests</button>
+  
+  <h2>Debug Information:</h2>
+  <pre id="debug-info"></pre>
+
+  <script>
+    // Basic JavaScript test
+    document.getElementById('js-status').innerHTML = '<span class="success">✓ JavaScript is enabled and working!</span>';
+    
+    // Browser information
+    const browserInfo = document.getElementById('browser-info');
+    browserInfo.innerHTML = `
+      <p><strong>User Agent:</strong> ${navigator.userAgent}</p>
+      <p><strong>Browser:</strong> ${navigator.appName}</p>
+      <p><strong>Version:</strong> ${navigator.appVersion}</p>
+      <p><strong>Platform:</strong> ${navigator.platform}</p>
+    `;
+    
+    // Environment tests
+    const testsDiv = document.getElementById('tests');
+    const tests = [];
+    
+    // Check for localStorage
+    try {
+      localStorage.setItem('test', 'test');
+      localStorage.removeItem('test');
+      tests.push('<span class="success">✓ localStorage is working</span>');
+    } catch (e) {
+      tests.push('<span class="error">✗ localStorage is not available</span>');
+    }
+    
+    // Check for fetch API
+    if (window.fetch) {
+      tests.push('<span class="success">✓ Fetch API is available</span>');
+    } else {
+      tests.push('<span class="error">✗ Fetch API is not available</span>');
+    }
+    
+    // Check for Promises
+    if (window.Promise) {
+      tests.push('<span class="success">✓ Promise API is available</span>');
+    } else {
+      tests.push('<span class="error">✗ Promise API is not available</span>');
+    }
+    
+    // Check for async/await
+    try {
+      eval('async function test() {}');
+      tests.push('<span class="success">✓ async/await is supported</span>');
+    } catch (e) {
+      tests.push('<span class="error">✗ async/await is not supported</span>');
+    }
+    
+    testsDiv.innerHTML = tests.map(test => `<p>${test}</p>`).join('');
+    
+    // Additional tests button
+    document.getElementById('test-btn').addEventListener('click', function() {
+      const debugInfo = document.getElementById('debug-info');
+      
+      // Test WebSocket
+      try {
+        const ws = new WebSocket('wss://echo.websocket.org');
+        ws.onopen = function() {
+          debugInfo.textContent += 'WebSocket connection established successfully\n';
+          ws.close();
+        };
+        ws.onerror = function(error) {
+          debugInfo.textContent += 'WebSocket error: ' + JSON.stringify(error) + '\n';
+        };
+      } catch (e) {
+        debugInfo.textContent += 'WebSocket error: ' + e.message + '\n';
+      }
+      
+      // Test window.crypto
+      if (window.crypto && window.crypto.getRandomValues) {
+        const array = new Uint32Array(5);
+        window.crypto.getRandomValues(array);
+        debugInfo.textContent += 'Crypto API is available\nRandom values: ' + array.join(', ') + '\n';
+      } else {
+        debugInfo.textContent += 'Crypto API is not available\n';
+      }
+      
+      // Environment variables
+      debugInfo.textContent += '\nEnvironment Info:\n';
+      debugInfo.textContent += 'Window Inner Size: ' + window.innerWidth + 'x' + window.innerHeight + '\n';
+      debugInfo.textContent += 'Document Content Loaded: ' + document.readyState + '\n';
+    });
+  </script>
+</body>
+</html> 
